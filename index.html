@@ -4,19 +4,81 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Travel App Coming Soon</title>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            color: white;
+            text-align: center;
+            background: url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e') no-repeat center center/cover;
+            height: 100vh;
+        }
+
+        .overlay {
+            background: rgba(0, 0, 0, 0.6);
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+        }
+
+        p {
+            font-size: 1.2em;
+            max-width: 600px;
+            margin: 10px auto;
+        }
+
+        .btn {
+            margin-top: 20px;
+            padding: 12px 25px;
+            font-size: 1em;
+            border: none;
+            border-radius: 25px;
+            background-color: #00bcd4;
+            color: white;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .btn:hover {
+            background-color: #0097a7;
+        }
+
+        .features {
+            margin-top: 40px;
+        }
+
+        .features p {
+            font-size: 1em;
+        }
+    </style>
 </head>
-<body style="text-align:center; font-family:Arial; margin-top:100px;">
 
-    <h1>🌍 Travel App Coming Soon</h1>
-    
-    <p>
-        This website will soon help users plan trips, explore destinations, 
-        and organize travel all in one place.
-    </p>
+<body>
+    <div class="overlay">
+        <h1>🌍 Travel App</h1>
+        <h2>Coming Soon</h2>
 
-    <p>
-        Stay tuned for updates!
-    </p>
+        <p>
+            Plan trips, discover destinations, and explore the world all in one place.
+            Our platform will connect you to trusted lodging, flights, and experiences.
+        </p>
 
+        <button class="btn">Explore Features</button>
+
+        <div class="features">
+            <p>✈️ Find flights easily</p>
+            <p>🏨 Discover lodging options</p>
+            <p>📍 Explore attractions</p>
+            <p>🔒 Travel with confidence</p>
+        </div>
+    </div>
 </body>
 </html>
