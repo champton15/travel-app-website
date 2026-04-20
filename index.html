@@ -1,165 +1,205 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Travel App Coming Soon</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Travel App</title>
 
-    <style>
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            color: white;
-            text-align: center;
-            background: url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e') no-repeat center center/cover;
-            height: 100vh;
-        }
+<style>
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e') no-repeat center center/cover;
+    color: white;
+}
 
-        .overlay {
-            background: rgba(0, 0, 0, 0.6);
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            padding: 20px;
-        }
+/* NAVBAR */
+.nav {
+    background: rgba(0,0,0,0.8);
+    padding: 15px;
+    display: flex;
+    justify-content: space-between;
+}
 
-        h1 {
-            font-size: 3em;
-            margin-bottom: 10px;
-        }
+.nav h2 {
+    margin: 0;
+}
 
-        p {
-            font-size: 1.2em;
-            max-width: 600px;
-            margin: 10px auto;
-        }
+.nav a {
+    color: white;
+    margin-left: 15px;
+    text-decoration: none;
+}
 
-        .btn {
-            margin-top: 20px;
-            padding: 12px 25px;
-            font-size: 1em;
-            border: none;
-            border-radius: 25px;
-            background-color: #00bcd4;
-            color: white;
-            cursor: pointer;
-            transition: 0.3s;
-        }
+/* MAIN */
+.overlay {
+    background: rgba(0,0,0,0.6);
+    min-height: 100vh;
+    padding: 20px;
+    text-align: center;
+}
 
-        .btn:hover {
-            background-color: #0097a7;
-        }
+.search-box {
+    background: white;
+    color: black;
+    padding: 20px;
+    border-radius: 15px;
+    width: 320px;
+    margin: 20px auto;
+}
 
-        .features {
-            margin-top: 40px;
-        }
+input, select {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+}
 
-        .features p {
-            font-size: 1em;
-        }
+.btn {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 20px;
+    background-color: #00bcd4;
+    color: white;
+    cursor: pointer;
+}
 
-        input, select {
-            padding: 8px;
-            margin-top: 5px;
-            border-radius: 5px;
-            border: none;
-        }
-    </style>
+.results {
+    margin-top: 30px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+/* CARDS */
+.card {
+    background: white;
+    color: black;
+    width: 250px;
+    margin: 10px;
+    border-radius: 12px;
+    overflow: hidden;
+    text-align: left;
+}
+
+.card img {
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+}
+
+.card-content {
+    padding: 10px;
+}
+
+.features {
+    margin-top: 40px;
+}
+</style>
 </head>
 
 <body>
-    <div class="overlay">
-        <h1>🌍 Travel App</h1>
-        <h2>Coming Soon</h2>
 
-        <p>
-            Plan trips, discover destinations, and explore the world all in one place.
-            Our platform will connect you to trusted lodging, flights, and experiences.
-        </p>
-
-        <button class="btn">Explore Features</button>
-
-        <!-- 🔥 NEW SEARCH SECTION -->
-        <div style="margin-top:30px;">
-            <h2>Search Travel</h2>
-
-            <label>Destination (City):</label><br>
-            <input type="text" id="destination" placeholder="Enter city"><br><br>
-
-            <label>Country:</label><br>
-            <select id="country">
-                <option value="france">France</option>
-                <option value="usa">USA</option>
-                <option value="japan">Japan</option>
-            </select><br><br>
-
-            <label>Travel Type:</label><br>
-            <select id="type">
-                <option value="flights">Flights</option>
-                <option value="hotels">Hotels</option>
-                <option value="trains">Trains</option>
-            </select><br><br>
-
-            <button class="btn" onclick="search()">Search</button>
-
-            <div id="results" style="margin-top:20px;"></div>
-            <p style="font-size:0.9em;"><i>*Results shown are demo estimates*</i></p>
-        </div>
-
-        <!-- Your original section -->
-        <div class="features">
-            <h3 style="margin-top:30px;">Future Expansion</h3>
-
-            <p>🌍 Country-based travel systems</p>
-            <p>🚆 Regional train tracking</p>
-            <p>✈️ Flight integration</p>
-            <p>🏨 Lodging search</p>
-        </div>
+<!-- NAVBAR -->
+<div class="nav">
+    <h2>🌍 Travel App</h2>
+    <div>
+        <a href="#">Home</a>
+        <a href="#">Search</a>
+        <a href="#">About</a>
     </div>
+</div>
 
-    <!-- 🔥 JAVASCRIPT GOES RIGHT HERE -->
-    <script>
-    function search() {
-        let destination = document.getElementById("destination").value;
-        let country = document.getElementById("country").value;
-        let type = document.getElementById("type").value;
+<div class="overlay">
 
-        let results = "<h3>Results (Demo)</h3>";
+<h1>Find Your Next Trip</h1>
+<p>Search flights, hotels, and trains all in one place</p>
 
-        if (country === "france") {
-            if (type === "flights") {
-                results += "<p>Flight to " + destination + ", France - Est. $450 - $700</p>";
-            } else if (type === "hotels") {
-                results += "<p>Hotel in " + destination + ", France - Est. $120/night</p>";
-            } else {
-                results += "<p>Train travel in France - Est. $60</p>";
-            }
-        }
+<!-- SEARCH BOX -->
+<div class="search-box">
+    <input type="text" id="destination" placeholder="Enter city">
 
-        else if (country === "usa") {
-            if (type === "flights") {
-                results += "<p>Flight to " + destination + ", USA - Est. $200 - $500</p>";
-            } else if (type === "hotels") {
-                results += "<p>Hotel in " + destination + ", USA - Est. $100/night</p>";
-            } else {
-                results += "<p>Train travel in USA - Est. $80</p>";
-            }
-        }
+    <select id="country">
+        <option value="france">France</option>
+        <option value="usa">USA</option>
+        <option value="japan">Japan</option>
+    </select>
 
-        else if (country === "japan") {
-            if (type === "flights") {
-                results += "<p>Flight to " + destination + ", Japan - Est. $700 - $1200</p>";
-            } else if (type === "hotels") {
-                results += "<p>Hotel in " + destination + ", Japan - Est. $90/night</p>";
-            } else {
-                results += "<p>Bullet train in Japan - Est. $120</p>";
-            }
-        }
+    <select id="type">
+        <option value="flights">Flights</option>
+        <option value="hotels">Hotels</option>
+        <option value="trains">Trains</option>
+    </select>
 
-        document.getElementById("results").innerHTML = results;
+    <button class="btn" onclick="search()">Search</button>
+</div>
+
+<!-- RESULTS -->
+<div id="results" class="results"></div>
+
+<p><i>*Demo results for project purposes*</i></p>
+
+<!-- FUTURE -->
+<div class="features">
+    <h3>Future Expansion</h3>
+    <p>🌍 Country-based systems</p>
+    <p>🚆 Train tracking</p>
+    <p>✈️ Flight APIs</p>
+    <p>🏨 Hotel integration</p>
+</div>
+
+</div>
+
+<script>
+function search() {
+    let destination = document.getElementById("destination").value || "Popular Destination";
+    let country = document.getElementById("country").value;
+    let type = document.getElementById("type").value;
+
+    let results = "";
+
+    if (type === "flights") {
+        results += createCard("✈️ Flight", destination, "$300 - $800",
+        "https://images.unsplash.com/photo-1502920917128-1aa500764cbd");
+
+        results += createCard("✈️ Flight Deal", destination, "$250 Limited Offer",
+        "https://images.unsplash.com/photo-1494415859740-21e878dd929d");
     }
-    </script>
+
+    if (type === "hotels") {
+        results += createCard("🏨 Hotel Stay", destination, "$120 / night",
+        "https://images.unsplash.com/photo-1566073771259-6a8506099945");
+
+        results += createCard("🏨 Luxury Hotel", destination, "$220 / night",
+        "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b");
+    }
+
+    if (type === "trains") {
+        results += createCard("🚆 Train Ticket", country.toUpperCase(), "$60",
+        "https://images.unsplash.com/photo-1474487548417-781cb71495f3");
+
+        results += createCard("🚆 Express Train", country.toUpperCase(), "$90",
+        "https://images.unsplash.com/photo-1501594907352-04cda38ebc29");
+    }
+
+    document.getElementById("results").innerHTML = results;
+}
+
+function createCard(title, location, price, image) {
+    return `
+        <div class="card">
+            <img src="${image}">
+            <div class="card-content">
+                <h4>${title}</h4>
+                <p><strong>${location}</strong></p>
+                <p>${price}</p>
+            </div>
+        </div>
+    `;
+}
+</script>
 
 </body>
 </html>
