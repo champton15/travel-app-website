@@ -58,6 +58,13 @@
         .features p {
             font-size: 1em;
         }
+
+        input, select {
+            padding: 8px;
+            margin-top: 5px;
+            border-radius: 5px;
+            border: none;
+        }
     </style>
 </head>
 
@@ -73,14 +80,86 @@
 
         <button class="btn">Explore Features</button>
 
+        <!-- 🔥 NEW SEARCH SECTION -->
+        <div style="margin-top:30px;">
+            <h2>Search Travel</h2>
+
+            <label>Destination (City):</label><br>
+            <input type="text" id="destination" placeholder="Enter city"><br><br>
+
+            <label>Country:</label><br>
+            <select id="country">
+                <option value="france">France</option>
+                <option value="usa">USA</option>
+                <option value="japan">Japan</option>
+            </select><br><br>
+
+            <label>Travel Type:</label><br>
+            <select id="type">
+                <option value="flights">Flights</option>
+                <option value="hotels">Hotels</option>
+                <option value="trains">Trains</option>
+            </select><br><br>
+
+            <button class="btn" onclick="search()">Search</button>
+
+            <div id="results" style="margin-top:20px;"></div>
+            <p style="font-size:0.9em;"><i>*Results shown are demo estimates*</i></p>
+        </div>
+
+        <!-- Your original section -->
         <div class="features">
             <h3 style="margin-top:30px;">Future Expansion</h3>
 
-<p>🌍 Country-based travel systems</p>
-<p>🚆 Regional train tracking</p>
-<p>✈️ Flight integration</p>
-<p>🏨 Lodging search</p>
+            <p>🌍 Country-based travel systems</p>
+            <p>🚆 Regional train tracking</p>
+            <p>✈️ Flight integration</p>
+            <p>🏨 Lodging search</p>
         </div>
     </div>
+
+    <!-- 🔥 JAVASCRIPT GOES RIGHT HERE -->
+    <script>
+    function search() {
+        let destination = document.getElementById("destination").value;
+        let country = document.getElementById("country").value;
+        let type = document.getElementById("type").value;
+
+        let results = "<h3>Results (Demo)</h3>";
+
+        if (country === "france") {
+            if (type === "flights") {
+                results += "<p>Flight to " + destination + ", France - Est. $450 - $700</p>";
+            } else if (type === "hotels") {
+                results += "<p>Hotel in " + destination + ", France - Est. $120/night</p>";
+            } else {
+                results += "<p>Train travel in France - Est. $60</p>";
+            }
+        }
+
+        else if (country === "usa") {
+            if (type === "flights") {
+                results += "<p>Flight to " + destination + ", USA - Est. $200 - $500</p>";
+            } else if (type === "hotels") {
+                results += "<p>Hotel in " + destination + ", USA - Est. $100/night</p>";
+            } else {
+                results += "<p>Train travel in USA - Est. $80</p>";
+            }
+        }
+
+        else if (country === "japan") {
+            if (type === "flights") {
+                results += "<p>Flight to " + destination + ", Japan - Est. $700 - $1200</p>";
+            } else if (type === "hotels") {
+                results += "<p>Hotel in " + destination + ", Japan - Est. $90/night</p>";
+            } else {
+                results += "<p>Bullet train in Japan - Est. $120</p>";
+            }
+        }
+
+        document.getElementById("results").innerHTML = results;
+    }
+    </script>
+
 </body>
 </html>
