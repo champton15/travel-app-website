@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Search</title>
+
+<style>
+body {
+    margin: 0;
+    font-family: Arial;
+    background: #111;
+    color: white;
+}
+
+.nav {
+    display: flex;
+    justify-content: space-between;
+    padding: 15px;
+    background: black;
+}
+
+.nav a {
+    color: white;
+    margin: 0 10px;
+    text-decoration: none;
+}
+
+.container {
+    padding: 30px;
+    text-align: center;
+}
+
+input {
+    padding: 10px;
+    width: 250px;
+    border-radius: 8px;
+    border: none;
+}
+
+.btn {
+    padding: 10px 15px;
+    background: #00bcd4;
+    border: none;
+    border-radius: 10px;
+    color: white;
+    cursor: pointer;
+    margin-left: 10px;
+}
+
+.results {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 30px;
+}
+
+.card {
+    background: white;
+    color: black;
+    width: 250px;
+    margin: 10px;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.card-content {
+    padding: 10px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="nav">
+    <h2>Search Hotels</h2>
+    <div>
+        <a href="index.html">Home</a>
+        <a href="search.html">Search</a>
+        <a href="about.html">About</a>
+    </div>
+</div>
+
+<div class="container">
+
+    <h1>Find Real Hotels</h1>
+
+    <input type="text" id="destination" placeholder="Enter city">
+    <button class="btn" onclick="search()">Search</button>
+
+    <div id="results" class="results"></div>
+
+</div>
+
+<script>
+async function search() {
+    const destination = document.getElementById("destination").value;
+    const resultsDiv = document.getElementById("results");
+
+    if (!destination) {
+        alert("Enter a city");
+        return;
+    }
+
+    resultsDiv.innerHTML = "<p>Loading...</p>";
+
+    const apiKey = "b071fca2216e4d3bb2cbea11fad11019";
+
+    const url = `https://api.geoapify.com/v2/places?categories=accommodation.hotel&text=${encodeURIComponent(destination)}&limit=6&apiKey=${apiKey}`;
+
+    try {
+        const res = await fetch(url);
+        const data = await res.json();
+
+        if (!data.features || data.features.length === 0) {
+            resultsDiv.innerHTML = "<p>No results found</p>";
+            return;
+        }
+
+        let html = "";
+
+        data.features.forEach(place => {
+            html += `
+                <div class="card">
+                    <div class="card-content">
+                        <h3>${place.properties.name || "Hotel"}</h3>
+                        <p>${place.properties.formatted || "No address"}</p>
+                        <button class="btn">Book</button>
+                    </div>
+                </div>
+            `;
+        });
+
+        resultsDiv.innerHTML = html;
+
+    } catch (err) {
+        console.log(err);
+        resultsDiv.innerHTML = "<p>Error loading data</p>";
+    }
+}
+</script>
+
+</body>
+</html>
