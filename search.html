@@ -4,116 +4,21 @@
 <meta charset="UTF-8">
 <title>Travel Hub Elite</title>
 
-<style>
-body {
-    margin: 0;
-    font-family: Arial, sans-serif;
-    background: #0b1220;
-    color: white;
-}
-
-/* NAV */
-.nav {
-    display: flex;
-    justify-content: space-between;
-    padding: 15px 25px;
-    background: rgba(0,0,0,0.85);
-}
-
-/* HERO */
-.hero {
-    text-align: center;
-    padding: 40px 20px 10px;
-}
-
-input {
-    padding: 12px;
-    width: 260px;
-    border-radius: 10px;
-    border: none;
-}
-
-.btn {
-    padding: 12px 16px;
-    background: #00bcd4;
-    border: none;
-    border-radius: 10px;
-    color: white;
-    cursor: pointer;
-    margin-left: 5px;
-}
-
-/* LOADER */
-.loader {
-    border: 4px solid #2a3446;
-    border-top: 4px solid #00bcd4;
-    border-radius: 50%;
-    width: 30px;
-    height: 30px;
-    animation: spin 1s linear infinite;
-    margin: 20px auto;
-}
-
-@keyframes spin {
-    100% { transform: rotate(360deg); }
-}
-
-/* RESULTS */
-.results {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-    gap: 18px;
-    padding: 25px;
-}
-
-/* CARD */
-.card {
-    background: #111b2e;
-    border-radius: 16px;
-    overflow: hidden;
-    transition: 0.2s;
-}
-
-.card img {
-    width: 100%;
-    height: 160px;
-    object-fit: cover;
-}
-
-.card-content {
-    padding: 12px;
-}
-
-.price {
-    color: #00e5a8;
-    font-weight: bold;
-}
-
-.small-btn {
-    margin-top: 10px;
-    padding: 8px;
-    width: 100%;
-    border: none;
-    border-radius: 8px;
-    background: #1e90ff;
-    color: white;
-    cursor: pointer;
-}
-</style>
+<link rel="stylesheet" href="styles.css">
+<script type="module" src="app.js"></script>
 </head>
 
 <body>
 
 <div class="nav">
-    <div><strong>🌍 Travel Hub Elite</strong></div>
+    <div><strong>🌍 Travel Hub</strong></div>
     <div>
-        <a href="index.html" style="color:white;">Home</a>
-        <a href="search.html" style="color:white;">App</a>
-        <a href="about.html" style="color:white;">About</a>
+        <a href="index.html">Home</a>
+        <a href="search.html">App</a>
+        <a href="about.html">About</a>
     </div>
 </div>
 
-<!-- HERO -->
 <div class="hero">
     <h1>Find your next trip</h1>
 
@@ -128,192 +33,17 @@ input {
     </div>
 </div>
 
-<!-- HEADER -->
 <div style="text-align:center;">
     <h2>Explore Global Travel Options</h2>
-    <p style="opacity:0.7;">Real API data + simulated transport systems</p>
+    <p style="opacity:0.7;">Real API + simulated global transport</p>
 </div>
 
-<!-- RESULTS -->
 <div id="results" class="results"></div>
 
-<!-- SAVED TRIPS -->
 <div style="text-align:center; padding:20px;">
     <button class="btn" onclick="showTrips()">View Saved Trips ⭐</button>
     <div id="tripList"></div>
 </div>
-
-<script>
-
-let mode = "hotels";
-let apiKey = "b071fca2216e4d3bb2cbea11fad11019";
-
-let savedTrips = JSON.parse(localStorage.getItem("trips")) || [];
-
-function setMode(m) {
-    mode = m;
-}
-
-function saveTrip(name, address, price) {
-    savedTrips.push({ name, address, price });
-    localStorage.setItem("trips", JSON.stringify(savedTrips));
-    alert("Saved ⭐");
-}
-
-function showTrips() {
-    const div = document.getElementById("tripList");
-
-    if (!savedTrips.length) {
-        div.innerHTML = "<p>No saved trips yet</p>";
-        return;
-    }
-
-    let html = "<h3>Saved Trips</h3>";
-
-    savedTrips.forEach(t => {
-        html += `
-        <div class="card" style="margin-top:10px;">
-            <div class="card-content">
-                <h3>${t.name}</h3>
-                <p>${t.address}</p>
-                <div class="price">$${t.price}</div>
-            </div>
-        </div>`;
-    });
-
-    div.innerHTML = html;
-}
-
-async function search() {
-
-    const destination = document.getElementById("destination").value.trim();
-    const resultsDiv = document.getElementById("results");
-
-    if (!destination) {
-        resultsDiv.innerHTML = "<p style='text-align:center;'>Enter a city</p>";
-        return;
-    }
-
-    resultsDiv.innerHTML = `
-    <div style="text-align:center;">
-        <div class="loader"></div>
-        <p>Searching global travel data...</p>
-    </div>
-    `;
-
-    try {
-
-        const geoRes = await fetch(
-            `https://api.geoapify.com/v1/geocode/search?text=${encodeURIComponent(destination)}&lang=en&apiKey=${apiKey}`
-        );
-
-        const geoData = await geoRes.json();
-
-        if (!geoData.features.length) {
-            resultsDiv.innerHTML = "<p style='text-align:center;'>Location not found</p>";
-            return;
-        }
-
-        const { lat, lon } = geoData.features[0].properties;
-
-        /* ---------------- HOTELS / HOSTELS ---------------- */
-        if (mode === "hotels" || mode === "hostels") {
-
-            let category = mode === "hostels"
-                ? "accommodation.hostel"
-                : "accommodation.hotel";
-
-            const placeRes = await fetch(
-                `https://api.geoapify.com/v2/places?categories=${category}&filter=circle:${lon},${lat},5000&limit=8&lang=en&apiKey=${apiKey}`
-            );
-
-            const placeData = await placeRes.json();
-
-            let html = "";
-
-            placeData.features.forEach(place => {
-
-                const name = place.properties.name || "Stay";
-                const address = place.properties.formatted || "No address";
-                const price = Math.floor(Math.random() * 180) + 60;
-
-                html += `
-                <div class="card">
-                    <img src="https://source.unsplash.com/400x300/?hotel,room">
-                    <div class="card-content">
-                        <h3>${name}</h3>
-                        <p>${address}</p>
-                        <div class="price">$${price}/night</div>
-                        <button class="small-btn"
-                        onclick='saveTrip("${name}", "${address}", "${price}")'>
-                        ⭐ Save Trip</button>
-                    </div>
-                </div>`;
-            });
-
-            resultsDiv.innerHTML = html;
-            return;
-        }
-
-        /* ---------------- FLIGHTS ---------------- */
-        if (mode === "flights") {
-
-            let airlines = ["Delta", "United", "Emirates", "Lufthansa"];
-
-            let html = "";
-
-            for (let i = 0; i < 6; i++) {
-
-                let price = Math.floor(Math.random() * 700) + 200;
-
-                html += `
-                <div class="card">
-                    <img src="https://source.unsplash.com/400x300/?airplane">
-                    <div class="card-content">
-                        <h3>${airlines[Math.floor(Math.random()*airlines.length)]}</h3>
-                        <p>${destination} Flight Route</p>
-                        <div class="price">$${price}</div>
-                    </div>
-                </div>`;
-            }
-
-            resultsDiv.innerHTML = html;
-            return;
-        }
-
-        /* ---------------- TRAINS ---------------- */
-        if (mode === "trains") {
-
-            let trains = ["EuroRail", "Amtrak", "Shinkansen", "ICE"];
-
-            let html = "";
-
-            for (let i = 0; i < 6; i++) {
-
-                let price = Math.floor(Math.random() * 120) + 40;
-
-                html += `
-                <div class="card">
-                    <img src="https://source.unsplash.com/400x300/?train">
-                    <div class="card-content">
-                        <h3>${trains[Math.floor(Math.random()*trains.length)]}</h3>
-                        <p>${destination} Route</p>
-                        <div class="price">$${price}</div>
-                    </div>
-                </div>`;
-            }
-
-            resultsDiv.innerHTML = html;
-            return;
-        }
-
-    } catch (err) {
-        console.error(err);
-        resultsDiv.innerHTML = "<p style='text-align:center;'>Error loading data</p>";
-    }
-}
-
-</script>
 
 </body>
 </html>
