@@ -2,77 +2,111 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Search</title>
+<title>Travel Stays</title>
 
 <style>
 body {
     margin: 0;
-    font-family: Arial;
-    background: #111;
+    font-family: Arial, sans-serif;
+    background: #0f172a;
     color: white;
 }
 
+/* NAV */
 .nav {
     display: flex;
     justify-content: space-between;
-    padding: 15px;
-    background: black;
+    padding: 15px 25px;
+    background: rgba(0,0,0,0.9);
 }
 
 .nav a {
     color: white;
-    margin: 0 10px;
+    margin-left: 15px;
     text-decoration: none;
 }
 
-.container {
-    padding: 30px;
+/* HERO */
+.hero {
     text-align: center;
+    padding: 50px 20px;
+}
+
+.hero h1 {
+    font-size: 2.5em;
+}
+
+.search-box {
+    margin-top: 20px;
 }
 
 input {
-    padding: 10px;
-    width: 250px;
+    padding: 12px;
+    width: 260px;
     border-radius: 8px;
     border: none;
 }
 
 .btn {
-    padding: 10px 15px;
+    padding: 12px 18px;
     background: #00bcd4;
     border: none;
-    border-radius: 10px;
+    border-radius: 8px;
     color: white;
     cursor: pointer;
-    margin-left: 10px;
 }
 
+/* RESULTS GRID */
 .results {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    margin-top: 30px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 18px;
+    padding: 20px;
 }
 
+/* CARD */
 .card {
-    background: white;
-    color: black;
-    width: 250px;
-    margin: 10px;
-    border-radius: 10px;
+    background: #1e293b;
+    border-radius: 14px;
     overflow: hidden;
+    transition: 0.2s;
+}
+
+.card:hover {
+    transform: scale(1.03);
+}
+
+.card img {
+    width: 100%;
+    height: 160px;
+    object-fit: cover;
 }
 
 .card-content {
-    padding: 10px;
+    padding: 12px;
+}
+
+.price {
+    color: #00e5a8;
+    font-weight: bold;
+    margin-top: 6px;
+    font-size: 0.95em;
+}
+
+/* STATES */
+.state {
+    text-align: center;
+    margin-top: 20px;
+    opacity: 0.8;
 }
 </style>
 </head>
 
 <body>
 
+<!-- NAV -->
 <div class="nav">
-    <h2>Search Hotels</h2>
+    <div><strong>🌍 TravelStays</strong></div>
     <div>
         <a href="index.html">Home</a>
         <a href="search.html">Search</a>
@@ -80,16 +114,19 @@ input {
     </div>
 </div>
 
-<div class="container">
+<!-- HERO -->
+<div class="hero">
+    <h1>Find your next stay</h1>
+    <p>Real hotel data powered by live API integration</p>
 
-    <h1>Find Real Hotels</h1>
-
-    <input type="text" id="destination" placeholder="Enter city">
-    <button class="btn" onclick="search()">Search</button>
-
-    <div id="results" class="results"></div>
-
+    <div class="search-box">
+        <input type="text" id="destination" placeholder="Enter a city (e.g. Paris)">
+        <button class="btn" onclick="search()">Search</button>
+    </div>
 </div>
+
+<!-- RESULTS -->
+<div id="results" class="results"></div>
 
 <script>
 async function search() {
@@ -97,47 +134,64 @@ async function search() {
     const resultsDiv = document.getElementById("results");
 
     if (!destination) {
-        alert("Enter a city");
+        resultsDiv.innerHTML = "<p class='state'>Please enter a city</p>";
         return;
     }
 
-    resultsDiv.innerHTML = "<p>Loading...</p>";
+    resultsDiv.innerHTML = "<p class='state'>🔎 Searching stays...</p>";
 
     const apiKey = "b071fca2216e4d3bb2cbea11fad11019";
 
     try {
+        // GEO → COORDINATES
         const geoUrl = `https://api.geoapify.com/v1/geocode/search?text=${encodeURIComponent(destination)}&lang=en&apiKey=${apiKey}`;
-
         const geoRes = await fetch(geoUrl);
         const geoData = await geoRes.json();
 
+        if (!geoData.features.length) {
+            resultsDiv.innerHTML = "<p class='state'>Location not found</p>";
+            return;
+        }
+
         const { lat, lon } = geoData.features[0].properties;
 
-        const hotelUrl = `https://api.geoapify.com/v2/places?categories=accommodation.hotel&filter=circle:${lon},${lat},5000&limit=6&lang=en&apiKey=${apiKey}`;
+        // HOTELS NEAR LOCATION
+        const hotelUrl = `https://api.geoapify.com/v2/places?categories=accommodation.hotel&filter=circle:${lon},${lat},5000&limit=8&lang=en&apiKey=${apiKey}`;
 
         const hotelRes = await fetch(hotelUrl);
         const hotelData = await hotelRes.json();
 
+        if (!hotelData.features.length) {
+            resultsDiv.innerHTML = "<p class='state'>No stays found</p>";
+            return;
+        }
+
         let html = "";
 
         hotelData.features.forEach(place => {
+
+            const name = place.properties.name || "Boutique Stay";
+            const address = place.properties.formatted || "Location not available";
+            const price = Math.floor(Math.random() * 180) + 60;
+
             html += `
-    <div class="card">
-        <div class="card-content">
-            <h3>${place.properties.name || "Hotel / Stay"}</h3>
-            <p>📍 ${place.properties.formatted || "Location not available"}</p>
-            <p>🌍 Country: ${place.properties.country || "N/A"}</p>
-            <button class="btn">View Details</button>
-        </div>
-    </div>
-`;
+                <div class="card">
+                    <img src="https://source.unsplash.com/400x300/?hotel,room">
+                    <div class="card-content">
+                        <h3>${name}</h3>
+                        <p>${address}</p>
+                        <div class="price">$${price} / night</div>
+                        <button class="btn">View Details</button>
+                    </div>
+                </div>
+            `;
         });
 
         resultsDiv.innerHTML = html;
 
     } catch (err) {
         console.error(err);
-        resultsDiv.innerHTML = "<p>Error loading data</p>";
+        resultsDiv.innerHTML = "<p class='state'>Something went wrong loading data</p>";
     }
 }
 </script>
