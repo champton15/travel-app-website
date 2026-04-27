@@ -1,100 +1,3 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Travel App</title>
-
-<style>
-body {
-    margin: 0;
-    font-family: Arial, sans-serif;
-    background: url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e') no-repeat center center/cover;
-    color: white;
-}
-
-.nav {
-    background: rgba(0,0,0,0.8);
-    padding: 15px;
-    display: flex;
-    justify-content: space-between;
-}
-
-.overlay {
-    background: rgba(0,0,0,0.6);
-    min-height: 100vh;
-    padding: 20px;
-    text-align: center;
-}
-
-.search-box {
-    background: white;
-    color: black;
-    padding: 20px;
-    border-radius: 15px;
-    width: 320px;
-    margin: 20px auto;
-}
-
-input {
-    width: 100%;
-    padding: 10px;
-    margin-bottom: 10px;
-    border-radius: 8px;
-}
-
-.btn {
-    width: 100%;
-    padding: 12px;
-    border: none;
-    border-radius: 20px;
-    background-color: #00bcd4;
-    color: white;
-    cursor: pointer;
-}
-
-.results {
-    margin-top: 30px;
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-}
-
-.card {
-    background: white;
-    color: black;
-    width: 250px;
-    margin: 10px;
-    border-radius: 12px;
-    overflow: hidden;
-    text-align: left;
-}
-
-.card-content {
-    padding: 10px;
-}
-</style>
-</head>
-
-<body>
-
-<div class="nav">
-    <h2>🌍 Travel App</h2>
-</div>
-
-<div class="overlay">
-
-<h1>Find Real Hotels</h1>
-
-<div class="search-box">
-    <input type="text" id="destination" placeholder="Enter city (ex: Paris)">
-    <button class="btn" onclick="search()">Search</button>
-</div>
-
-<div id="results" class="results"></div>
-
-</div>
-
 <script>
 async function search() {
     let destination = document.getElementById("destination").value;
@@ -106,15 +9,13 @@ async function search() {
 
     let apiKey = "b071fca2216e4d3bb2cbea11fad11019";
 
-    // FIXED URL (this avoids 400 error)
     let url = `https://api.geoapify.com/v2/places?categories=accommodation.hotel&text=${destination}&limit=6&apiKey=${apiKey}`;
 
     try {
         let response = await fetch(url);
 
-        // Handle bad responses
         if (!response.ok) {
-            throw new Error("API request failed");
+            throw new Error("API failed");
         }
 
         let data = await response.json();
@@ -122,9 +23,8 @@ async function search() {
 
         let results = "";
 
-        // Prevent crash if API returns nothing
         if (!data.features || data.features.length === 0) {
-            results = "<p>No hotels found. Try a different city.</p>";
+            results = "<p style='color:white;'>No hotels found. Try a city.</p>";
         } else {
             data.features.forEach(place => {
                 let name = place.properties.name || "Hotel";
@@ -132,6 +32,7 @@ async function search() {
 
                 results += `
                     <div class="card">
+                        <img src="https://images.unsplash.com/photo-1566073771259-6a8506099945">
                         <div class="card-content">
                             <h4>${name}</h4>
                             <p>${address}</p>
@@ -147,10 +48,7 @@ async function search() {
     } catch (error) {
         console.error(error);
         document.getElementById("results").innerHTML =
-            "<p>Error loading data. Try another city.</p>";
+            "<p style='color:white;'>Error loading data.</p>";
     }
 }
 </script>
-
-</body>
-</html>
