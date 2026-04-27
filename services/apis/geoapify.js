@@ -1,4 +1,4 @@
-const API_KEY = "YOUR_GEOAPIFY_KEY";
+const API_KEY = b071fca2216e4d3bb2cbea11fad11019;
 
 export async function geocode(city) {
     const res = await fetch(
