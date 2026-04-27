@@ -2,13 +2,13 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Travel Stays</title>
+<title>Travel Hub</title>
 
 <style>
 body {
     margin: 0;
     font-family: Arial, sans-serif;
-    background: #0f172a;
+    background: #0b1220;
     color: white;
 }
 
@@ -17,7 +17,7 @@ body {
     display: flex;
     justify-content: space-between;
     padding: 15px 25px;
-    background: rgba(0,0,0,0.9);
+    background: rgba(0,0,0,0.85);
 }
 
 .nav a {
@@ -29,51 +29,49 @@ body {
 /* HERO */
 .hero {
     text-align: center;
-    padding: 50px 20px;
+    padding: 40px 20px 10px;
 }
 
 .hero h1 {
     font-size: 2.5em;
 }
 
-.search-box {
-    margin-top: 20px;
-}
-
 input {
     padding: 12px;
     width: 260px;
-    border-radius: 8px;
+    border-radius: 10px;
     border: none;
 }
 
 .btn {
-    padding: 12px 18px;
+    padding: 12px 16px;
     background: #00bcd4;
     border: none;
-    border-radius: 8px;
+    border-radius: 10px;
     color: white;
     cursor: pointer;
+    margin-left: 5px;
 }
 
-/* RESULTS GRID */
+/* TABS */
+.tabs {
+    text-align: center;
+    margin-top: 15px;
+}
+
+/* RESULTS */
 .results {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
     gap: 18px;
-    padding: 20px;
+    padding: 25px;
 }
 
 /* CARD */
 .card {
-    background: #1e293b;
-    border-radius: 14px;
+    background: #111b2e;
+    border-radius: 16px;
     overflow: hidden;
-    transition: 0.2s;
-}
-
-.card:hover {
-    transform: scale(1.03);
 }
 
 .card img {
@@ -90,14 +88,17 @@ input {
     color: #00e5a8;
     font-weight: bold;
     margin-top: 6px;
-    font-size: 0.95em;
 }
 
-/* STATES */
-.state {
-    text-align: center;
-    margin-top: 20px;
-    opacity: 0.8;
+.small-btn {
+    margin-top: 10px;
+    padding: 8px;
+    width: 100%;
+    border: none;
+    border-radius: 8px;
+    background: #1e90ff;
+    color: white;
+    cursor: pointer;
 }
 </style>
 </head>
@@ -106,22 +107,27 @@ input {
 
 <!-- NAV -->
 <div class="nav">
-    <div><strong>🌍 TravelStays</strong></div>
+    <div><strong>🌍 Travel Hub</strong></div>
     <div>
         <a href="index.html">Home</a>
-        <a href="search.html">Search</a>
+        <a href="search.html">App</a>
         <a href="about.html">About</a>
     </div>
 </div>
 
 <!-- HERO -->
 <div class="hero">
-    <h1>Find your next stay</h1>
-    <p>Real hotel data powered by live API integration</p>
+    <h1>Find your next trip</h1>
 
-    <div class="search-box">
-        <input type="text" id="destination" placeholder="Enter a city (e.g. Paris)">
-        <button class="btn" onclick="search()">Search</button>
+    <input type="text" id="destination" placeholder="Enter city (Paris, Tokyo)">
+    <button class="btn" onclick="search()">Search</button>
+
+    <!-- TABS -->
+    <div class="tabs">
+        <button class="btn" onclick="setMode('hotels')">🏨 Hotels</button>
+        <button class="btn" onclick="setMode('hostels')">🛏️ Hostels</button>
+        <button class="btn" onclick="setMode('flights')">✈️ Flights</button>
+        <button class="btn" onclick="setMode('trains')">🚆 Trains</button>
     </div>
 </div>
 
@@ -129,71 +135,146 @@ input {
 <div id="results" class="results"></div>
 
 <script>
+
+let mode = "hotels";
+let apiKey = "b071fca2216e4d3bb2cbea11fad11019";
+
+function setMode(m) {
+    mode = m;
+}
+
 async function search() {
+
     const destination = document.getElementById("destination").value.trim();
     const resultsDiv = document.getElementById("results");
 
     if (!destination) {
-        resultsDiv.innerHTML = "<p class='state'>Please enter a city</p>";
+        resultsDiv.innerHTML = "<p style='text-align:center;'>Enter a city</p>";
         return;
     }
 
-    resultsDiv.innerHTML = "<p class='state'>🔎 Searching stays...</p>";
-
-    const apiKey = "b071fca2216e4d3bb2cbea11fad11019";
+    resultsDiv.innerHTML = "<p style='text-align:center;'>🔎 Searching...</p>";
 
     try {
-        // GEO → COORDINATES
-        const geoUrl = `https://api.geoapify.com/v1/geocode/search?text=${encodeURIComponent(destination)}&lang=en&apiKey=${apiKey}`;
-        const geoRes = await fetch(geoUrl);
+
+        // STEP 1: GEO LOCATION
+        const geoRes = await fetch(
+            `https://api.geoapify.com/v1/geocode/search?text=${encodeURIComponent(destination)}&lang=en&apiKey=${apiKey}`
+        );
+
         const geoData = await geoRes.json();
 
         if (!geoData.features.length) {
-            resultsDiv.innerHTML = "<p class='state'>Location not found</p>";
+            resultsDiv.innerHTML = "<p style='text-align:center;'>Location not found</p>";
             return;
         }
 
         const { lat, lon } = geoData.features[0].properties;
 
-        // HOTELS NEAR LOCATION
-        const hotelUrl = `https://api.geoapify.com/v2/places?categories=accommodation.hotel&filter=circle:${lon},${lat},5000&limit=8&lang=en&apiKey=${apiKey}`;
+        // -----------------------------
+        // ✈️ FLIGHTS (SIMULATED)
+        // -----------------------------
+        if (mode === "flights") {
 
-        const hotelRes = await fetch(hotelUrl);
-        const hotelData = await hotelRes.json();
+            let airlines = ["Delta", "United", "Emirates", "Lufthansa", "Air France"];
+            let html = "";
 
-        if (!hotelData.features.length) {
-            resultsDiv.innerHTML = "<p class='state'>No stays found</p>";
+            for (let i = 0; i < 6; i++) {
+
+                let price = Math.floor(Math.random() * 700) + 200;
+
+                html += `
+                <div class="card">
+                    <img src="https://source.unsplash.com/400x300/?airplane,sky">
+                    <div class="card-content">
+                        <h3>${airlines[Math.floor(Math.random()*airlines.length)]}</h3>
+                        <p>${destination} Flight Route</p>
+                        <div class="price">$${price}</div>
+                        <button class="small-btn">View Flight</button>
+                    </div>
+                </div>`;
+            }
+
+            resultsDiv.innerHTML = html;
+            return;
+        }
+
+        // -----------------------------
+        // 🚆 TRAINS (SIMULATED)
+        // -----------------------------
+        if (mode === "trains") {
+
+            let trains = ["EuroRail", "Amtrak", "Shinkansen", "ICE Germany", "Renfe"];
+            let html = "";
+
+            for (let i = 0; i < 6; i++) {
+
+                let price = Math.floor(Math.random() * 120) + 40;
+
+                html += `
+                <div class="card">
+                    <img src="https://source.unsplash.com/400x300/?train,railway">
+                    <div class="card-content">
+                        <h3>${trains[Math.floor(Math.random()*trains.length)]}</h3>
+                        <p>${destination} Route</p>
+                        <div class="price">$${price}</div>
+                        <button class="small-btn">View Route</button>
+                    </div>
+                </div>`;
+            }
+
+            resultsDiv.innerHTML = html;
+            return;
+        }
+
+        // -----------------------------
+        // 🏨 HOTELS / 🛏️ HOSTELS (REAL API)
+        // -----------------------------
+
+        let category =
+            mode === "hostels"
+            ? "accommodation.hostel"
+            : "accommodation.hotel";
+
+        const placeRes = await fetch(
+            `https://api.geoapify.com/v2/places?categories=${category}&filter=circle:${lon},${lat},5000&limit=8&lang=en&apiKey=${apiKey}`
+        );
+
+        const placeData = await placeRes.json();
+
+        if (!placeData.features.length) {
+            resultsDiv.innerHTML = "<p style='text-align:center;'>No results found</p>";
             return;
         }
 
         let html = "";
 
-        hotelData.features.forEach(place => {
+        placeData.features.forEach(place => {
 
-            const name = place.properties.name || "Boutique Stay";
-            const address = place.properties.formatted || "Location not available";
+            const name = place.properties.name || "Stay";
+            const address = place.properties.formatted || "Address unavailable";
             const price = Math.floor(Math.random() * 180) + 60;
 
             html += `
-                <div class="card">
-                    <img src="https://source.unsplash.com/400x300/?hotel,room">
-                    <div class="card-content">
-                        <h3>${name}</h3>
-                        <p>${address}</p>
-                        <div class="price">$${price} / night</div>
-                        <button class="btn">View Details</button>
-                    </div>
+            <div class="card">
+                <img src="https://source.unsplash.com/400x300/?hotel,room">
+                <div class="card-content">
+                    <h3>${name}</h3>
+                    <p>${address}</p>
+                    <div class="price">$${price} / night</div>
+                    <button class="small-btn">View Details</button>
                 </div>
-            `;
+            </div>`;
         });
 
         resultsDiv.innerHTML = html;
 
     } catch (err) {
         console.error(err);
-        resultsDiv.innerHTML = "<p class='state'>Something went wrong loading data</p>";
+        resultsDiv.innerHTML = "<p style='text-align:center;'>Error loading data</p>";
     }
 }
+
 </script>
 
 </body>
