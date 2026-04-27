@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Travel Hub</title>
+<title>Travel Hub Elite</title>
 
 <style>
 body {
@@ -20,20 +20,10 @@ body {
     background: rgba(0,0,0,0.85);
 }
 
-.nav a {
-    color: white;
-    margin-left: 15px;
-    text-decoration: none;
-}
-
 /* HERO */
 .hero {
     text-align: center;
     padding: 40px 20px 10px;
-}
-
-.hero h1 {
-    font-size: 2.5em;
 }
 
 input {
@@ -53,10 +43,19 @@ input {
     margin-left: 5px;
 }
 
-/* TABS */
-.tabs {
-    text-align: center;
-    margin-top: 15px;
+/* LOADER */
+.loader {
+    border: 4px solid #2a3446;
+    border-top: 4px solid #00bcd4;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    animation: spin 1s linear infinite;
+    margin: 20px auto;
+}
+
+@keyframes spin {
+    100% { transform: rotate(360deg); }
 }
 
 /* RESULTS */
@@ -72,6 +71,7 @@ input {
     background: #111b2e;
     border-radius: 16px;
     overflow: hidden;
+    transition: 0.2s;
 }
 
 .card img {
@@ -87,7 +87,6 @@ input {
 .price {
     color: #00e5a8;
     font-weight: bold;
-    margin-top: 6px;
 }
 
 .small-btn {
@@ -105,13 +104,12 @@ input {
 
 <body>
 
-<!-- NAV -->
 <div class="nav">
-    <div><strong>🌍 Travel Hub</strong></div>
+    <div><strong>🌍 Travel Hub Elite</strong></div>
     <div>
-        <a href="index.html">Home</a>
-        <a href="search.html">App</a>
-        <a href="about.html">About</a>
+        <a href="index.html" style="color:white;">Home</a>
+        <a href="search.html" style="color:white;">App</a>
+        <a href="about.html" style="color:white;">About</a>
     </div>
 </div>
 
@@ -119,11 +117,10 @@ input {
 <div class="hero">
     <h1>Find your next trip</h1>
 
-    <input type="text" id="destination" placeholder="Enter city (Paris, Tokyo)">
+    <input type="text" id="destination" placeholder="Enter city">
     <button class="btn" onclick="search()">Search</button>
 
-    <!-- TABS -->
-    <div class="tabs">
+    <div style="margin-top:15px;">
         <button class="btn" onclick="setMode('hotels')">🏨 Hotels</button>
         <button class="btn" onclick="setMode('hostels')">🛏️ Hostels</button>
         <button class="btn" onclick="setMode('flights')">✈️ Flights</button>
@@ -131,16 +128,60 @@ input {
     </div>
 </div>
 
+<!-- HEADER -->
+<div style="text-align:center;">
+    <h2>Explore Global Travel Options</h2>
+    <p style="opacity:0.7;">Real API data + simulated transport systems</p>
+</div>
+
 <!-- RESULTS -->
 <div id="results" class="results"></div>
+
+<!-- SAVED TRIPS -->
+<div style="text-align:center; padding:20px;">
+    <button class="btn" onclick="showTrips()">View Saved Trips ⭐</button>
+    <div id="tripList"></div>
+</div>
 
 <script>
 
 let mode = "hotels";
 let apiKey = "b071fca2216e4d3bb2cbea11fad11019";
 
+let savedTrips = JSON.parse(localStorage.getItem("trips")) || [];
+
 function setMode(m) {
     mode = m;
+}
+
+function saveTrip(name, address, price) {
+    savedTrips.push({ name, address, price });
+    localStorage.setItem("trips", JSON.stringify(savedTrips));
+    alert("Saved ⭐");
+}
+
+function showTrips() {
+    const div = document.getElementById("tripList");
+
+    if (!savedTrips.length) {
+        div.innerHTML = "<p>No saved trips yet</p>";
+        return;
+    }
+
+    let html = "<h3>Saved Trips</h3>";
+
+    savedTrips.forEach(t => {
+        html += `
+        <div class="card" style="margin-top:10px;">
+            <div class="card-content">
+                <h3>${t.name}</h3>
+                <p>${t.address}</p>
+                <div class="price">$${t.price}</div>
+            </div>
+        </div>`;
+    });
+
+    div.innerHTML = html;
 }
 
 async function search() {
@@ -153,11 +194,15 @@ async function search() {
         return;
     }
 
-    resultsDiv.innerHTML = "<p style='text-align:center;'>🔎 Searching...</p>";
+    resultsDiv.innerHTML = `
+    <div style="text-align:center;">
+        <div class="loader"></div>
+        <p>Searching global travel data...</p>
+    </div>
+    `;
 
     try {
 
-        // STEP 1: GEO LOCATION
         const geoRes = await fetch(
             `https://api.geoapify.com/v1/geocode/search?text=${encodeURIComponent(destination)}&lang=en&apiKey=${apiKey}`
         );
@@ -171,12 +216,50 @@ async function search() {
 
         const { lat, lon } = geoData.features[0].properties;
 
-        // -----------------------------
-        // ✈️ FLIGHTS (SIMULATED)
-        // -----------------------------
+        /* ---------------- HOTELS / HOSTELS ---------------- */
+        if (mode === "hotels" || mode === "hostels") {
+
+            let category = mode === "hostels"
+                ? "accommodation.hostel"
+                : "accommodation.hotel";
+
+            const placeRes = await fetch(
+                `https://api.geoapify.com/v2/places?categories=${category}&filter=circle:${lon},${lat},5000&limit=8&lang=en&apiKey=${apiKey}`
+            );
+
+            const placeData = await placeRes.json();
+
+            let html = "";
+
+            placeData.features.forEach(place => {
+
+                const name = place.properties.name || "Stay";
+                const address = place.properties.formatted || "No address";
+                const price = Math.floor(Math.random() * 180) + 60;
+
+                html += `
+                <div class="card">
+                    <img src="https://source.unsplash.com/400x300/?hotel,room">
+                    <div class="card-content">
+                        <h3>${name}</h3>
+                        <p>${address}</p>
+                        <div class="price">$${price}/night</div>
+                        <button class="small-btn"
+                        onclick='saveTrip("${name}", "${address}", "${price}")'>
+                        ⭐ Save Trip</button>
+                    </div>
+                </div>`;
+            });
+
+            resultsDiv.innerHTML = html;
+            return;
+        }
+
+        /* ---------------- FLIGHTS ---------------- */
         if (mode === "flights") {
 
-            let airlines = ["Delta", "United", "Emirates", "Lufthansa", "Air France"];
+            let airlines = ["Delta", "United", "Emirates", "Lufthansa"];
+
             let html = "";
 
             for (let i = 0; i < 6; i++) {
@@ -185,12 +268,11 @@ async function search() {
 
                 html += `
                 <div class="card">
-                    <img src="https://source.unsplash.com/400x300/?airplane,sky">
+                    <img src="https://source.unsplash.com/400x300/?airplane">
                     <div class="card-content">
                         <h3>${airlines[Math.floor(Math.random()*airlines.length)]}</h3>
                         <p>${destination} Flight Route</p>
                         <div class="price">$${price}</div>
-                        <button class="small-btn">View Flight</button>
                     </div>
                 </div>`;
             }
@@ -199,12 +281,11 @@ async function search() {
             return;
         }
 
-        // -----------------------------
-        // 🚆 TRAINS (SIMULATED)
-        // -----------------------------
+        /* ---------------- TRAINS ---------------- */
         if (mode === "trains") {
 
-            let trains = ["EuroRail", "Amtrak", "Shinkansen", "ICE Germany", "Renfe"];
+            let trains = ["EuroRail", "Amtrak", "Shinkansen", "ICE"];
+
             let html = "";
 
             for (let i = 0; i < 6; i++) {
@@ -213,12 +294,11 @@ async function search() {
 
                 html += `
                 <div class="card">
-                    <img src="https://source.unsplash.com/400x300/?train,railway">
+                    <img src="https://source.unsplash.com/400x300/?train">
                     <div class="card-content">
                         <h3>${trains[Math.floor(Math.random()*trains.length)]}</h3>
                         <p>${destination} Route</p>
                         <div class="price">$${price}</div>
-                        <button class="small-btn">View Route</button>
                     </div>
                 </div>`;
             }
@@ -226,48 +306,6 @@ async function search() {
             resultsDiv.innerHTML = html;
             return;
         }
-
-        // -----------------------------
-        // 🏨 HOTELS / 🛏️ HOSTELS (REAL API)
-        // -----------------------------
-
-        let category =
-            mode === "hostels"
-            ? "accommodation.hostel"
-            : "accommodation.hotel";
-
-        const placeRes = await fetch(
-            `https://api.geoapify.com/v2/places?categories=${category}&filter=circle:${lon},${lat},5000&limit=8&lang=en&apiKey=${apiKey}`
-        );
-
-        const placeData = await placeRes.json();
-
-        if (!placeData.features.length) {
-            resultsDiv.innerHTML = "<p style='text-align:center;'>No results found</p>";
-            return;
-        }
-
-        let html = "";
-
-        placeData.features.forEach(place => {
-
-            const name = place.properties.name || "Stay";
-            const address = place.properties.formatted || "Address unavailable";
-            const price = Math.floor(Math.random() * 180) + 60;
-
-            html += `
-            <div class="card">
-                <img src="https://source.unsplash.com/400x300/?hotel,room">
-                <div class="card-content">
-                    <h3>${name}</h3>
-                    <p>${address}</p>
-                    <div class="price">$${price} / night</div>
-                    <button class="small-btn">View Details</button>
-                </div>
-            </div>`;
-        });
-
-        resultsDiv.innerHTML = html;
 
     } catch (err) {
         console.error(err);
