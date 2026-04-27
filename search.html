@@ -106,29 +106,17 @@ async function search() {
     const apiKey = "b071fca2216e4d3bb2cbea11fad11019";
 
     try {
-        // STEP 1: Convert city → coordinates
         const geoUrl = `https://api.geoapify.com/v1/geocode/search?text=${encodeURIComponent(destination)}&apiKey=${apiKey}`;
 
         const geoRes = await fetch(geoUrl);
         const geoData = await geoRes.json();
 
-        if (!geoData.features.length) {
-            resultsDiv.innerHTML = "<p>City not found</p>";
-            return;
-        }
-
         const { lat, lon } = geoData.features[0].properties;
 
-        // STEP 2: Search hotels near coordinates
         const hotelUrl = `https://api.geoapify.com/v2/places?categories=accommodation.hotel&filter=circle:${lon},${lat},5000&limit=6&apiKey=${apiKey}`;
 
         const hotelRes = await fetch(hotelUrl);
         const hotelData = await hotelRes.json();
-
-        if (!hotelData.features.length) {
-            resultsDiv.innerHTML = "<p>No hotels found</p>";
-            return;
-        }
 
         let html = "";
 
