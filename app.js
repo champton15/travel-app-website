@@ -1,4 +1,4 @@
-
+import { searchHotels } from "./services/hotels.js";
 import { geocode, getPlaces } from "./api.js";
 
 /* =========================
