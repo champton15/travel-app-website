@@ -13,7 +13,6 @@ body {
     color: white;
 }
 
-/* NAVBAR */
 .nav {
     background: rgba(0,0,0,0.8);
     padding: 15px;
@@ -21,17 +20,6 @@ body {
     justify-content: space-between;
 }
 
-.nav h2 {
-    margin: 0;
-}
-
-.nav a {
-    color: white;
-    margin-left: 15px;
-    text-decoration: none;
-}
-
-/* MAIN */
 .overlay {
     background: rgba(0,0,0,0.6);
     min-height: 100vh;
@@ -48,12 +36,11 @@ body {
     margin: 20px auto;
 }
 
-input, select {
+input {
     width: 100%;
     padding: 10px;
     margin-bottom: 10px;
     border-radius: 8px;
-    border: 1px solid #ccc;
 }
 
 .btn {
@@ -73,7 +60,6 @@ input, select {
     justify-content: center;
 }
 
-/* CARDS */
 .card {
     background: white;
     color: black;
@@ -87,50 +73,25 @@ input, select {
 .card-content {
     padding: 10px;
 }
-
-.features {
-    margin-top: 40px;
-}
 </style>
 </head>
 
 <body>
 
-<!-- NAVBAR -->
 <div class="nav">
     <h2>🌍 Travel App</h2>
-    <div>
-        <a href="#">Home</a>
-        <a href="#">Search</a>
-        <a href="#">About</a>
-    </div>
 </div>
 
 <div class="overlay">
 
-<h1>Find Your Next Trip</h1>
-<p>Search real hotels using live data</p>
+<h1>Find Real Hotels</h1>
 
-<!-- SEARCH BOX -->
 <div class="search-box">
-    <input type="text" id="destination" placeholder="Enter city">
-
+    <input type="text" id="destination" placeholder="Enter city (ex: Paris)">
     <button class="btn" onclick="search()">Search</button>
 </div>
 
-<!-- RESULTS -->
 <div id="results" class="results"></div>
-
-<p><i>*Live hotel data powered by API*</i></p>
-
-<!-- FUTURE -->
-<div class="features">
-    <h3>Future Expansion</h3>
-    <p>🌍 Country-based systems</p>
-    <p>🚆 Train tracking</p>
-    <p>✈️ Flight APIs</p>
-    <p>🏨 Hotel integration</p>
-</div>
 
 </div>
 
@@ -145,16 +106,25 @@ async function search() {
 
     let apiKey = "b071fca2216e4d3bb2cbea11fad11019";
 
+    // FIXED URL (this avoids 400 error)
     let url = `https://api.geoapify.com/v2/places?categories=accommodation.hotel&text=${destination}&limit=6&apiKey=${apiKey}`;
 
     try {
         let response = await fetch(url);
+
+        // Handle bad responses
+        if (!response.ok) {
+            throw new Error("API request failed");
+        }
+
         let data = await response.json();
+        console.log(data);
 
         let results = "";
 
-        if (data.features.length === 0) {
-            results = "<p>No hotels found. Try another location.</p>";
+        // Prevent crash if API returns nothing
+        if (!data.features || data.features.length === 0) {
+            results = "<p>No hotels found. Try a different city.</p>";
         } else {
             data.features.forEach(place => {
                 let name = place.properties.name || "Hotel";
@@ -176,7 +146,8 @@ async function search() {
 
     } catch (error) {
         console.error(error);
-        document.getElementById("results").innerHTML = "<p>Error loading data.</p>";
+        document.getElementById("results").innerHTML =
+            "<p>Error loading data. Try another city.</p>";
     }
 }
 </script>
