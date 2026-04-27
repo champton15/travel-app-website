@@ -93,7 +93,7 @@ input {
 
 <script>
 async function search() {
-    const destination = document.getElementById("destination").value;
+    const destination = document.getElementById("destination").value.trim();
     const resultsDiv = document.getElementById("results");
 
     if (!destination) {
@@ -105,26 +105,40 @@ async function search() {
 
     const apiKey = "b071fca2216e4d3bb2cbea11fad11019";
 
-    const url = `https://api.geoapify.com/v2/places?categories=accommodation.hotel&text=${encodeURIComponent(destination)}&limit=6&apiKey=${apiKey}`;
-
     try {
-        const res = await fetch(url);
-        const data = await res.json();
+        // STEP 1: Convert city → coordinates
+        const geoUrl = `https://api.geoapify.com/v1/geocode/search?text=${encodeURIComponent(destination)}&apiKey=${apiKey}`;
 
-        if (!data.features || data.features.length === 0) {
-            resultsDiv.innerHTML = "<p>No results found</p>";
+        const geoRes = await fetch(geoUrl);
+        const geoData = await geoRes.json();
+
+        if (!geoData.features.length) {
+            resultsDiv.innerHTML = "<p>City not found</p>";
+            return;
+        }
+
+        const { lat, lon } = geoData.features[0].properties;
+
+        // STEP 2: Search hotels near coordinates
+        const hotelUrl = `https://api.geoapify.com/v2/places?categories=accommodation.hotel&filter=circle:${lon},${lat},5000&limit=6&apiKey=${apiKey}`;
+
+        const hotelRes = await fetch(hotelUrl);
+        const hotelData = await hotelRes.json();
+
+        if (!hotelData.features.length) {
+            resultsDiv.innerHTML = "<p>No hotels found</p>";
             return;
         }
 
         let html = "";
 
-        data.features.forEach(place => {
+        hotelData.features.forEach(place => {
             html += `
                 <div class="card">
                     <div class="card-content">
                         <h3>${place.properties.name || "Hotel"}</h3>
-                        <p>${place.properties.formatted || "No address"}</p>
-                        <button class="btn">Book</button>
+                        <p>${place.properties.formatted || ""}</p>
+                        <button class="btn">Book Now</button>
                     </div>
                 </div>
             `;
@@ -133,7 +147,7 @@ async function search() {
         resultsDiv.innerHTML = html;
 
     } catch (err) {
-        console.log(err);
+        console.error(err);
         resultsDiv.innerHTML = "<p>Error loading data</p>";
     }
 }
