@@ -106,14 +106,14 @@ async function search() {
     const apiKey = "b071fca2216e4d3bb2cbea11fad11019";
 
     try {
-        const geoUrl = `https://api.geoapify.com/v1/geocode/search?text=${encodeURIComponent(destination)}&apiKey=${apiKey}`;
+        const geoUrl = `https://api.geoapify.com/v1/geocode/search?text=${encodeURIComponent(destination)}&lang=en&apiKey=${apiKey}`;
 
         const geoRes = await fetch(geoUrl);
         const geoData = await geoRes.json();
 
         const { lat, lon } = geoData.features[0].properties;
 
-        const hotelUrl = `https://api.geoapify.com/v2/places?categories=accommodation.hotel&filter=circle:${lon},${lat},5000&limit=6&apiKey=${apiKey}`;
+        const hotelUrl = `https://api.geoapify.com/v2/places?categories=accommodation.hotel&filter=circle:${lon},${lat},5000&limit=6&lang=en&apiKey=${apiKey}`;
 
         const hotelRes = await fetch(hotelUrl);
         const hotelData = await hotelRes.json();
@@ -122,14 +122,15 @@ async function search() {
 
         hotelData.features.forEach(place => {
             html += `
-                <div class="card">
-                    <div class="card-content">
-                        <h3>${place.properties.name || "Hotel"}</h3>
-                        <p>${place.properties.formatted || ""}</p>
-                        <button class="btn">Book Now</button>
-                    </div>
-                </div>
-            `;
+    <div class="card">
+        <div class="card-content">
+            <h3>${place.properties.name || "Hotel / Stay"}</h3>
+            <p>📍 ${place.properties.formatted || "Location not available"}</p>
+            <p>🌍 Country: ${place.properties.country || "N/A"}</p>
+            <button class="btn">View Details</button>
+        </div>
+    </div>
+`;
         });
 
         resultsDiv.innerHTML = html;
