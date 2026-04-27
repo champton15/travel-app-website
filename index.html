@@ -1,54 +1,66 @@
 <script>
 async function search() {
-    let destination = document.getElementById("destination").value;
+    const destination = document.getElementById("destination").value.trim();
+    const resultsDiv = document.getElementById("results");
 
+    // Validate input
     if (!destination) {
         alert("Please enter a destination");
         return;
     }
 
-    let apiKey = "b071fca2216e4d3bb2cbea11fad11019";
+    // Show loading state (makes it feel real)
+    resultsDiv.innerHTML = "<p style='color:white;'>Searching real hotels...</p>";
 
-    let url = `https://api.geoapify.com/v2/places?categories=accommodation.hotel&text=${destination}&limit=6&apiKey=${apiKey}`;
+    const apiKey = "b071fca2216e4d3bb2cbea11fad11019";
+
+    // FIX: encode user input to prevent API errors
+    const url = `https://api.geoapify.com/v2/places?categories=accommodation.hotel&text=${encodeURIComponent(destination)}&limit=6&apiKey=${apiKey}`;
 
     try {
-        let response = await fetch(url);
+        const response = await fetch(url);
 
+        // Handle bad API response
         if (!response.ok) {
-            throw new Error("API failed");
+            throw new Error("API request failed");
         }
 
-        let data = await response.json();
-        console.log(data);
+        const data = await response.json();
+        console.log("API DATA:", data);
 
         let results = "";
 
+        // Handle empty or missing results safely
         if (!data.features || data.features.length === 0) {
-            results = "<p style='color:white;'>No hotels found. Try a city.</p>";
-        } else {
-            data.features.forEach(place => {
-                let name = place.properties.name || "Hotel";
-                let address = place.properties.formatted || "Address not available";
-
-                results += `
-                    <div class="card">
-                        <img src="https://images.unsplash.com/photo-1566073771259-6a8506099945">
-                        <div class="card-content">
-                            <h4>${name}</h4>
-                            <p>${address}</p>
-                            <button class="btn">Book Now</button>
-                        </div>
-                    </div>
-                `;
-            });
+            resultsDiv.innerHTML = "<p style='color:white;'>No hotels found. Try a major city like Paris or New York.</p>";
+            return;
         }
 
-        document.getElementById("results").innerHTML = results;
+        // Build result cards
+        data.features.forEach(place => {
+            const props = place.properties;
+
+            const name = props.name || "Hotel";
+            const address = props.formatted || "Address not available";
+
+            results += `
+                <div class="card">
+                    <div class="card-content">
+                        <h4>${name}</h4>
+                        <p>${address}</p>
+                        <button class="btn" onclick="alert('Redirecting to booking partner...')">
+                            Book Now
+                        </button>
+                    </div>
+                </div>
+            `;
+        });
+
+        resultsDiv.innerHTML = results;
 
     } catch (error) {
         console.error(error);
-        document.getElementById("results").innerHTML =
-            "<p style='color:white;'>Error loading data.</p>";
+        resultsDiv.innerHTML = "<p style='color:red;'>Error loading travel data. Please try again.</p>";
     }
 }
 </script>
