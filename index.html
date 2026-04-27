@@ -1,66 +1,73 @@
-<script>
-async function search() {
-    const destination = document.getElementById("destination").value.trim();
-    const resultsDiv = document.getElementById("results");
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Travel App</title>
 
-    // Validate input
-    if (!destination) {
-        alert("Please enter a destination");
-        return;
-    }
-
-    // Show loading state (makes it feel real)
-    resultsDiv.innerHTML = "<p style='color:white;'>Searching real hotels...</p>";
-
-    const apiKey = "b071fca2216e4d3bb2cbea11fad11019";
-
-    // FIX: encode user input to prevent API errors
-    const url = `https://api.geoapify.com/v2/places?categories=accommodation.hotel&text=${encodeURIComponent(destination)}&limit=6&apiKey=${apiKey}`;
-
-    try {
-        const response = await fetch(url);
-
-        // Handle bad API response
-        if (!response.ok) {
-            throw new Error("API request failed");
-        }
-
-        const data = await response.json();
-        console.log("API DATA:", data);
-
-        let results = "";
-
-        // Handle empty or missing results safely
-        if (!data.features || data.features.length === 0) {
-            resultsDiv.innerHTML = "<p style='color:white;'>No hotels found. Try a major city like Paris or New York.</p>";
-            return;
-        }
-
-        // Build result cards
-        data.features.forEach(place => {
-            const props = place.properties;
-
-            const name = props.name || "Hotel";
-            const address = props.formatted || "Address not available";
-
-            results += `
-                <div class="card">
-                    <div class="card-content">
-                        <h4>${name}</h4>
-                        <p>${address}</p>
-                        <button class="btn" onclick="alert('Redirecting to booking partner...')">
-                            Book Now
-                        </button>
-                    </div>
-                </div>
-            `;
-        });
-
-        resultsDiv.innerHTML = results;
-
-    } catch (error) {
-        console.error(error);
-        resultsDiv.innerHTML = "<p style='color:red;'>Error loading travel data. Please try again.</p>";
-    }
+<style>
+body {
+    margin: 0;
+    font-family: Arial;
+    background: url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e') center/cover;
+    color: white;
 }
-</script>
+
+.overlay {
+    background: rgba(0,0,0,0.6);
+    min-height: 100vh;
+    padding: 40px;
+    text-align: center;
+}
+
+.nav {
+    display: flex;
+    justify-content: space-between;
+    padding: 15px;
+    background: rgba(0,0,0,0.8);
+}
+
+.nav a {
+    color: white;
+    margin: 0 10px;
+    text-decoration: none;
+}
+
+.btn {
+    padding: 12px 20px;
+    background: #00bcd4;
+    border: none;
+    border-radius: 20px;
+    color: white;
+    cursor: pointer;
+}
+</style>
+</head>
+
+<body>
+
+<div class="nav">
+    <h2>🌍 Travel App</h2>
+    <div>
+        <a href="index.html">Home</a>
+        <a href="search.html">Search</a>
+        <a href="about.html">About</a>
+    </div>
+</div>
+
+<div class="overlay">
+    <h1>Find Your Next Stay</h1>
+    <p>Real hotel data powered by live APIs</p>
+
+    <a href="search.html">
+        <button class="btn">Start Searching</button>
+    </a>
+
+    <h3 style="margin-top:40px;">Future Expansion</h3>
+    <p>🌍 Country-based travel systems</p>
+    <p>🚆 Train tracking</p>
+    <p>✈️ Flight integration</p>
+    <p>🏨 Lodging search</p>
+</div>
+
+</body>
+</html>
