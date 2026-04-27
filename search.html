@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Travel Hub Elite</title>
+<title>Travel Hub</title>
 
 <link rel="stylesheet" href="styles.css">
 <script type="module" src="app.js"></script>
@@ -10,39 +10,47 @@
 
 <body>
 
+<!-- NAV -->
 <div class="nav">
     <div><strong>🌍 Travel Hub</strong></div>
     <div>
-        <a href="index.html">Home</a>
-        <a href="search.html">App</a>
-        <a href="about.html">About</a>
+        <a href="#">Home</a>
+        <a href="#">Trips</a>
+        <a href="#">Profile</a>
     </div>
 </div>
 
+<!-- HERO -->
 <div class="hero">
-    <h1>Find your next trip</h1>
+    <h1>Where to next?</h1>
 
-    <input type="text" id="destination" placeholder="Enter city">
+    <input id="destination" placeholder="Search cities...">
     <button class="btn" onclick="search()">Search</button>
 
     <div style="margin-top:15px;">
-        <button class="btn" onclick="setMode('hotels')">🏨 Hotels</button>
-        <button class="btn" onclick="setMode('hostels')">🛏️ Hostels</button>
-        <button class="btn" onclick="setMode('flights')">✈️ Flights</button>
-        <button class="btn" onclick="setMode('trains')">🚆 Trains</button>
+        <button class="btn" onclick="setMode('hotels')">Hotels</button>
+        <button class="btn" onclick="setMode('hostels')">Hostels</button>
+        <button class="btn" onclick="setMode('flights')">Flights</button>
+        <button class="btn" onclick="setMode('trains')">Trains</button>
     </div>
 </div>
 
-<div style="text-align:center;">
-    <h2>Explore Global Travel Options</h2>
-    <p style="opacity:0.7;">Real API + simulated global transport</p>
-</div>
-
+<!-- RESULTS -->
 <div id="results" class="results"></div>
 
-<div style="text-align:center; padding:20px;">
-    <button class="btn" onclick="showTrips()">View Saved Trips ⭐</button>
-    <div id="tripList"></div>
+<!-- MODAL (AIRBNB STYLE DETAILS VIEW) -->
+<div id="modal" class="modal hidden">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <img id="modalImg">
+        <h2 id="modalTitle"></h2>
+        <p id="modalAddress"></p>
+        <div id="modalPrice" class="price"></div>
+
+        <button class="btn" onclick="saveFromModal()">
+            ⭐ Save Trip
+        </button>
+    </div>
 </div>
 
 </body>
