@@ -1,4 +1,4 @@
-const KEY = "YOUR_UNSPLASH_KEY";
+const KEY = Oabu1PzI7ek6V1Uzqg1eK2IVZ6Y--HvncJZoKIlI05s;
 
 export async function getImage(query) {
 
