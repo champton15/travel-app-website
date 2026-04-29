@@ -1,88 +1,72 @@
-let mode = "hotels";
-let currentPlace = null;
+let currentMode = "accommodation.hotel";
+let currentResults = [];
 
-function setMode(newMode) {
-    mode = newMode;
+function setMode(mode) {
+    currentMode = mode;
 }
 
 async function search() {
-    const city = document.getElementById("searchInput").value;
+    const city = document.getElementById("destination").value;
     const resultsDiv = document.getElementById("results");
 
-    if (!city) return;
-
-    resultsDiv.innerHTML = "<p>Loading...</p>";
+    resultsDiv.innerHTML = "Loading...";
 
     try {
-        const geoData = await geocode(city);
+        const geo = await geocode(city);
 
-        if (!geoData.features || geoData.features.length === 0) {
-            resultsDiv.innerHTML = "<p>City not found.</p>";
+        if (!geo.features.length) {
+            resultsDiv.innerHTML = "No location found.";
             return;
         }
 
-        const [lon, lat] = geoData.features[0].geometry.coordinates;
+        const { lat, lon } = geo.features[0].properties;
 
-        let category = "accommodation.hotel";
-        if (mode === "hostels") category = "accommodation.hostel";
-        if (mode === "flights") {
-            resultsDiv.innerHTML = "<p>✈️ Flights coming in Phase 3</p>";
-            return;
-        }
-        if (mode === "trains") {
-            resultsDiv.innerHTML = "<p>🚆 Trains coming in Phase 3</p>";
-            return;
-        }
+        const places = await getPlaces(lat, lon, currentMode);
 
-        const data = await getPlaces(lat, lon, category);
-        const places = data.features;
+        currentResults = places.features;
 
-        resultsDiv.innerHTML = "";
-
-        if (!places || places.length === 0) {
-            resultsDiv.innerHTML = "<p>No results found.</p>";
-            return;
-        }
-
-        places.forEach(place => {
-            const name = place.properties.name || "Unknown";
-            const address = place.properties.formatted || "No address";
-
-            // 🔥 Fake image (for now)
-            const img = `https://source.unsplash.com/400x300/?hotel,${name}`;
-
-            const card = document.createElement("div");
-            card.className = "card";
-
-            card.innerHTML = `
-                <img src="${img}">
-                <h3>${name}</h3>
-                <p>${address}</p>
-            `;
-
-            // 🔥 CLICKABLE CARD
-            card.onclick = () => openModal(name, address, img);
-
-            resultsDiv.appendChild(card);
-        });
+        displayResults(currentResults);
 
     } catch (err) {
         console.error(err);
-        resultsDiv.innerHTML = "<p>Error loading data.</p>";
+        resultsDiv.innerHTML = "Error loading data.";
     }
 }
 
-function openModal(name, address, img) {
-    currentPlace = { name, address };
+function displayResults(places) {
+    const resultsDiv = document.getElementById("results");
+    resultsDiv.innerHTML = "";
+
+    places.forEach((place, index) => {
+        const p = place.properties;
+
+        const card = document.createElement("div");
+        card.className = "card";
+
+        card.innerHTML = `
+            <img src="https://source.unsplash.com/400x300/?travel,hotel" />
+            <h3>${p.name || "Unknown"}</h3>
+            <p>${p.address_line1 || ""}</p>
+            <div class="price">$${Math.floor(Math.random() * 200 + 50)}</div>
+        `;
+
+        card.onclick = () => openModal(index);
+
+        resultsDiv.appendChild(card);
+    });
+}
+
+function openModal(index) {
+    const place = currentResults[index].properties;
 
     document.getElementById("modal").classList.remove("hidden");
-    document.getElementById("modalTitle").innerText = name;
-    document.getElementById("modalAddress").innerText = address;
-    document.getElementById("modalImg").src = img;
+    document.getElementById("modalTitle").innerText = place.name || "Unknown";
+    document.getElementById("modalAddress").innerText = place.address_line1 || "";
+    document.getElementById("modalImg").src =
+        "https://source.unsplash.com/800x500/?travel";
 
-    // fake pricing for now
     document.getElementById("modalPrice").innerText =
-        "$" + (Math.floor(Math.random() * 200) + 50) + " / night";
+        "$" + Math.floor(Math.random() * 200 + 50);
 }
 
 function closeModal() {
@@ -90,11 +74,11 @@ function closeModal() {
 }
 
 function saveFromModal() {
-    if (!currentPlace) return;
-
-    const saved = JSON.parse(localStorage.getItem("saved")) || [];
-    saved.push(currentPlace);
-    localStorage.setItem("saved", JSON.stringify(saved));
-
-    alert("Saved!");
+    alert("Trip saved (we’ll upgrade this next)");
 }
+
+/* 🔥 THIS FIXES YOUR BUTTON ERRORS */
+window.search = search;
+window.setMode = setMode;
+window.closeModal = closeModal;
+window.saveFromModal = saveFromModal;
