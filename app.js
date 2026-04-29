@@ -1,64 +1,73 @@
-import { searchHotels } from "./services/hotels.js";
+let mode = "hotels";
 
-let currentSelection = null;
-let savedTrips = JSON.parse(localStorage.getItem("trips")) || [];
+function setMode(newMode) {
+    mode = newMode;
+}
 
-/* SEARCH */
-window.search = async function () {
-
-    const city = document.getElementById("destination").value;
-    const results = document.getElementById("results");
+async function search() {
+    const city = document.getElementById("searchInput").value;
+    const resultsDiv = document.getElementById("results");
 
     if (!city) return;
 
-    results.innerHTML = "<p>Loading...</p>";
+    resultsDiv.innerHTML = "<p>Loading...</p>";
 
-    const hotels = await searchHotels(city);
+    try {
+        // 1. Get coordinates
+        const geoData = await geocode(city);
 
-    if (!hotels.length) {
-        results.innerHTML = "<p>No results found</p>";
-        return;
+        if (!geoData.features || geoData.features.length === 0) {
+            resultsDiv.innerHTML = "<p>City not found.</p>";
+            return;
+        }
+
+        const coords = geoData.features[0].geometry.coordinates;
+        const lon = coords[0];
+        const lat = coords[1];
+
+        // 2. Choose category
+        let category = "accommodation.hotel";
+        if (mode === "hostels") category = "accommodation.hostel";
+        if (mode === "food") category = "catering.restaurant";
+
+        // 3. Get places
+        const placeData = await getPlaces(lat, lon, category);
+
+        const places = placeData.features;
+
+        resultsDiv.innerHTML = "";
+
+        if (!places || places.length === 0) {
+            resultsDiv.innerHTML = "<p>No results found.</p>";
+            return;
+        }
+
+        // 4. Display results
+        places.forEach(place => {
+            const name = place.properties.name || "Unknown";
+            const address = place.properties.formatted || "No address";
+
+            const card = document.createElement("div");
+            card.className = "card";
+
+            card.innerHTML = `
+                <h3>${name}</h3>
+                <p>${address}</p>
+                <button onclick='savePlace("${name}", "${address}")'>Save</button>
+            `;
+
+            resultsDiv.appendChild(card);
+        });
+
+    } catch (err) {
+        console.error(err);
+        resultsDiv.innerHTML = "<p>Error loading data.</p>";
     }
+}
 
-    results.innerHTML = hotels.map(h => `
-        <div class="card"
-            onclick="openModal('${h.name}','${h.address}','${h.price}','${h.image}')">
-
-            <img src="${h.image}">
-
-            <div class="card-content">
-                <h3>${h.name}</h3>
-                <p>${h.address}</p>
-                <div class="price">${h.price}</div>
-            </div>
-        </div>
-    `).join("");
-};
-
-/* MODAL OPEN */
-window.openModal = (name, address, price, image) => {
-
-    currentSelection = { name, address, price };
-
-    document.getElementById("modal").classList.remove("hidden");
-
-    document.getElementById("modalTitle").innerText = name;
-    document.getElementById("modalAddress").innerText = address;
-    document.getElementById("modalPrice").innerText = price;
-    document.getElementById("modalImg").src = image;
-};
-
-/* CLOSE MODAL */
-window.closeModal = () => {
-    document.getElementById("modal").classList.add("hidden");
-};
-
-/* SAVE */
-window.saveFromModal = () => {
-    if (!currentSelection) return;
-
-    savedTrips.push(currentSelection);
-    localStorage.setItem("trips", JSON.stringify(savedTrips));
-
-    alert("Saved ⭐");
-};
+function savePlace(name, address) {
+    const saved = JSON.parse(localStorage.getItem("saved")) || [];
+    saved.push({ name, address });
+    localStorage.setItem("saved", JSON.stringify(saved));
+    alert("Saved!");
+}
