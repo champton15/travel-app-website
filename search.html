@@ -23,14 +23,14 @@
 <div class="hero">
     <h1>Where to next?</h1>
 
-    <input id="searchInput" placeholder="Search cities...">
+    <input id="destination" placeholder="Search cities...">
     <button class="btn" onclick="search()">Search</button>
 
     <div style="margin-top:15px;">
-        <button class="btn" onclick="setMode('hotels')">Hotels</button>
-        <button class="btn" onclick="setMode('hostels')">Hostels</button>
-        <button class="btn" onclick="setMode('flights')">Flights</button>
-        <button class="btn" onclick="setMode('trains')">Trains</button>
+        <button class="btn" onclick="setMode('accommodation.hotel')">Hotels</button>
+        <button class="btn" onclick="setMode('accommodation.hostel')">Hostels</button>
+        <button class="btn" onclick="setMode('transport.airport')">Flights</button>
+        <button class="btn" onclick="setMode('transport.train_station')">Trains</button>
     </div>
 </div>
 
@@ -46,13 +46,15 @@
         <p id="modalAddress"></p>
         <div id="modalPrice" class="price"></div>
 
-        <button class="btn" onclick="saveFromModal()">⭐ Save Trip</button>
+        <button class="btn" onclick="saveFromModal()">
+            ⭐ Save Trip
+        </button>
     </div>
 </div>
 
-<!-- ✅ SCRIPTS GO HERE (VERY IMPORTANT) -->
-<script src="apis/geoapify.js"></script>
-<script src="js/app.js"></script>
+<!-- ✅ CORRECT SCRIPT PATHS -->
+<script src="services/apis/geoapify.js"></script>
+<script src="app.js"></script>
 
 </body>
 </html>
