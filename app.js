@@ -1,4 +1,5 @@
 let mode = "hotels";
+let currentPlace = null;
 
 function setMode(newMode) {
     mode = newMode;
@@ -13,7 +14,6 @@ async function search() {
     resultsDiv.innerHTML = "<p>Loading...</p>";
 
     try {
-        // 1. Get coordinates
         const geoData = await geocode(city);
 
         if (!geoData.features || geoData.features.length === 0) {
@@ -21,19 +21,21 @@ async function search() {
             return;
         }
 
-        const coords = geoData.features[0].geometry.coordinates;
-        const lon = coords[0];
-        const lat = coords[1];
+        const [lon, lat] = geoData.features[0].geometry.coordinates;
 
-        // 2. Choose category
         let category = "accommodation.hotel";
         if (mode === "hostels") category = "accommodation.hostel";
-        if (mode === "food") category = "catering.restaurant";
+        if (mode === "flights") {
+            resultsDiv.innerHTML = "<p>✈️ Flights coming in Phase 3</p>";
+            return;
+        }
+        if (mode === "trains") {
+            resultsDiv.innerHTML = "<p>🚆 Trains coming in Phase 3</p>";
+            return;
+        }
 
-        // 3. Get places
-        const placeData = await getPlaces(lat, lon, category);
-
-        const places = placeData.features;
+        const data = await getPlaces(lat, lon, category);
+        const places = data.features;
 
         resultsDiv.innerHTML = "";
 
@@ -42,19 +44,24 @@ async function search() {
             return;
         }
 
-        // 4. Display results
         places.forEach(place => {
             const name = place.properties.name || "Unknown";
             const address = place.properties.formatted || "No address";
+
+            // 🔥 Fake image (for now)
+            const img = `https://source.unsplash.com/400x300/?hotel,${name}`;
 
             const card = document.createElement("div");
             card.className = "card";
 
             card.innerHTML = `
+                <img src="${img}">
                 <h3>${name}</h3>
                 <p>${address}</p>
-                <button onclick='savePlace("${name}", "${address}")'>Save</button>
             `;
+
+            // 🔥 CLICKABLE CARD
+            card.onclick = () => openModal(name, address, img);
 
             resultsDiv.appendChild(card);
         });
@@ -65,9 +72,29 @@ async function search() {
     }
 }
 
-function savePlace(name, address) {
+function openModal(name, address, img) {
+    currentPlace = { name, address };
+
+    document.getElementById("modal").classList.remove("hidden");
+    document.getElementById("modalTitle").innerText = name;
+    document.getElementById("modalAddress").innerText = address;
+    document.getElementById("modalImg").src = img;
+
+    // fake pricing for now
+    document.getElementById("modalPrice").innerText =
+        "$" + (Math.floor(Math.random() * 200) + 50) + " / night";
+}
+
+function closeModal() {
+    document.getElementById("modal").classList.add("hidden");
+}
+
+function saveFromModal() {
+    if (!currentPlace) return;
+
     const saved = JSON.parse(localStorage.getItem("saved")) || [];
-    saved.push({ name, address });
+    saved.push(currentPlace);
     localStorage.setItem("saved", JSON.stringify(saved));
+
     alert("Saved!");
 }
