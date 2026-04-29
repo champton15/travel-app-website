@@ -2,7 +2,7 @@ const API_KEY = "b071fca2216e4d3bb2cbea11fad11019";
 
 async function geocode(city) {
     const res = await fetch(
-        `https://api.geoapify.com/v1/geocode/search?text=${city}&apiKey=${API_KEY}`
+        `https://api.geoapify.com/v1/geocode/search?text=${encodeURIComponent(city)}&apiKey=${API_KEY}`
     );
     return await res.json();
 }
